@@ -9,7 +9,7 @@ import org.junit.Test;
 public abstract class MapTestTemplate extends Assert {
     
     protected final Map<String, Integer> map;
-    protected final int size = 100;
+    protected final int size = 60;
     
     public MapTestTemplate(Map<String, Integer> map) {
         this.map = map;
