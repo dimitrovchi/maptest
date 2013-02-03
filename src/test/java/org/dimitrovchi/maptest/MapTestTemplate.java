@@ -9,7 +9,7 @@ import org.junit.Test;
 public abstract class MapTestTemplate extends Assert {
     
     protected final Map<String, Integer> map;
-    protected final int size = 999;
+    protected final int size = 100;
     
     public MapTestTemplate(Map<String, Integer> map) {
         this.map = map;
@@ -17,11 +17,11 @@ public abstract class MapTestTemplate extends Assert {
     
     @Before
     public void init() throws Exception {
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         for (int i = 0; i < size; i++) {
             map.put(i + "x" + i, i);
         }
-        long fillTime = System.currentTimeMillis() - startTime;
+        double fillTime = (double)(System.nanoTime() - startTime) * 1e-6;
         System.out.println(this + ": fill time = " + fillTime + " ms");
         long ram = SizingAgent.deepSizeOf(map);
         System.out.println(this + ": RAM used = " + ram + " bytes");
@@ -29,13 +29,13 @@ public abstract class MapTestTemplate extends Assert {
     
     @Test
     public void test() throws Exception {
-        long startTime = System.currentTimeMillis();
-        for (int iter = 0; iter < 100; iter++) {
+        long startTime = System.nanoTime();
+        for (int iter = 0; iter < 100000; iter++) {
             for (int i = 0; i < size; i++) {
                 assertNotNull(map.get(i + "x" + i));
             }
         }
-        long accessTime = System.currentTimeMillis() - startTime;
+        double accessTime = (double)(System.nanoTime() - startTime) * 1e-6;
         System.out.println(this + ": access time = " + accessTime + " ms");
     }
 
