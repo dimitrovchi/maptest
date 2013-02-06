@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -42,7 +43,7 @@ public class MapTest<T extends Map<String, Integer> & Serializable> extends Abst
     }
     
     @Test
-    @BenchmarkOptions(benchmarkRounds = 1000)
+    @BenchmarkOptions(benchmarkRounds = 900, warmupRounds = 100)
     public void testFill() throws Exception {
         Map m = map.getClass().newInstance();
         for (int i = 0; i < size; i++) {
@@ -51,10 +52,12 @@ public class MapTest<T extends Map<String, Integer> & Serializable> extends Abst
     }
     
     @Test
-    @BenchmarkOptions(benchmarkRounds = 100000)
+    @BenchmarkOptions(benchmarkRounds = 99000, warmupRounds = 1000)
     public void testAccess() throws Exception {
+        Random r = new Random(0L);
         for (int i = 0; i < size; i++) {
-            assertNotNull(map.get(i + "x" + i));
+            int idx = r.nextInt(size);
+            assertNotNull(map.get(idx + "x" + idx));
         }
     }
 
