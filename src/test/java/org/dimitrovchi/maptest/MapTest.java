@@ -24,14 +24,14 @@ import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
 @BenchmarkOptions(concurrency = BenchmarkOptions.CONCURRENCY_SEQUENTIAL)
-public class MapTest extends AbstractBenchmark {
+public class MapTest<T extends Map<String, Integer> & Serializable> extends AbstractBenchmark {
     
-    protected final Map<String, Integer> map;
+    protected final T map;
     protected final int size;
     protected final Runtime runtime = Runtime.getRuntime();
     
     @SuppressWarnings("LeakingThisInConstructor")
-    public MapTest(Map<String, Integer> map, int size) {
+    public MapTest(T map, int size) {
         this.size = size;
         this.map = map;
         for (int i = 0; i < size; i++) {
@@ -51,19 +51,6 @@ public class MapTest extends AbstractBenchmark {
     }
     
     @Test
-    @BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0)
-    public void testMemory() throws Exception {
-        Map m = map.getClass().newInstance();
-        for (int k = 0; k < size; k++) {
-            m.put(k + "x" + k, k);
-        }
-        if (m instanceof Serializable) {
-            Serializable s = (Serializable)m;
-            System.out.format("RAM used: %d\n", WicketObjects.sizeof(s));
-        }
-    }
-    
-    @Test
     @BenchmarkOptions(benchmarkRounds = 100000)
     public void testAccess() throws Exception {
         for (int i = 0; i < size; i++) {
@@ -77,7 +64,7 @@ public class MapTest extends AbstractBenchmark {
         sb.append('(');
         sb.append(size);
         sb.append(" elements, ");
-        sb.append(WicketObjects.sizeof((Serializable)map));
+        sb.append(WicketObjects.sizeof(map));
         sb.append(" bytes)");
         return sb.toString();
     }
