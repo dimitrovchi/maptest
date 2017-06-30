@@ -1,10 +1,12 @@
 # maptest
 
+```
 Threads: 150
 Renew period: 10s
 Stat objects: 500
 Stat keys: 200
 JVM flags: -XX:+UseG1GC -Xmx12g -Xms12g
+```
 
 ```
 Benchmark                                              (selector)  Mode  Cnt     Score      Error   Units
