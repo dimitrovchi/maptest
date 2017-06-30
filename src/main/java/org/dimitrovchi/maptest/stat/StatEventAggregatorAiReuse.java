@@ -19,7 +19,7 @@ public class StatEventAggregatorAiReuse implements StatAggregator {
     private final EnumMap<StatKey, Map<StatObject, LongSet>> results = new EnumMap<>(StatKey.class);
 
     public StatEventAggregatorAiReuse() {
-        EnumSet.allOf(StatKey.class).forEach(k -> stats.put(k, new ConcurrentHashMap<>()));
+        EnumSet.allOf(StatKey.class).forEach(k -> stats.put(k, new ConcurrentHashMap<>(512)));
     }
 
     @Override
