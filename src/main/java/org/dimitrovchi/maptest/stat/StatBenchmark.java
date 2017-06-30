@@ -1,11 +1,23 @@
 package org.dimitrovchi.maptest.stat;
 
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OperationsPerInvocation;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Threads;
+import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.profile.GCProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.Random;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -21,20 +33,19 @@ import static java.util.stream.IntStream.range;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Threads(StatBenchmark.THREAD_COUNT)
 @BenchmarkMode(Mode.AverageTime)
-@OperationsPerInvocation(StatBenchmark.COUNT)
+@OperationsPerInvocation(StatBenchmark.OBJECT_COUNT * 200)
 public class StatBenchmark {
 
-    public static final int THREAD_COUNT = 8;
-    public static final int COUNT = 1_000_000;
+    public static final int THREAD_COUNT = 150;
     public static final int OBJECT_COUNT = 500;
 
     @Benchmark
-    public void aggregate(ThreadState state) {
-        final StatKey[] keys = state.keys;
-        final StatObject[] objects = state.objects;
+    public void aggregate(ThreadState state, BenchmarkState benchmarkState) {
         final StatAggregator aggregator = state.aggregator;
-        for (int i = 0; i < COUNT; i++) {
-            aggregator.accept(keys[i], objects[i]);
+        for (final StatObject object : benchmarkState.objects) {
+            for (final StatKey key : benchmarkState.keys) {
+                aggregator.accept(key, object);
+            }
         }
     }
 
@@ -53,20 +64,12 @@ public class StatBenchmark {
 
         private StatAggregator aggregator;
         private ScheduledThreadPoolExecutor timer;
-        private StatKey[] keys;
-        private StatObject[] objects;
 
         @Setup
         public void setUp(BenchmarkState benchmarkState) {
-            keys = new Random(0L).ints(COUNT, 0, benchmarkState.keys.length)
-                    .mapToObj(i -> benchmarkState.keys[i])
-                    .toArray(StatKey[]::new);
-            objects = new Random(0L).ints(COUNT, 0, benchmarkState.objects.length)
-                    .mapToObj(i -> benchmarkState.objects[i])
-                    .toArray(StatObject[]::new);
             aggregator = selector.statAggregatorSupplier.get();
             timer = new ScheduledThreadPoolExecutor(1);
-            timer.scheduleAtFixedRate(aggregator::flush, 1000L, 1000L, TimeUnit.MILLISECONDS);
+            timer.scheduleAtFixedRate(aggregator::flush, 10000L, 10000L, TimeUnit.MILLISECONDS);
         }
 
         @TearDown
