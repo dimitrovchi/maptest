@@ -27,9 +27,9 @@ import static java.util.stream.IntStream.range;
 /**
  * @author Dmitry Ovchinnikov
  */
-@Measurement(iterations = 5)
+@Measurement(iterations = 10)
 @Warmup(iterations = 5)
-@Fork(value = 1, jvmArgs = {"-XX:+UseG1GC", "-Xms10g", "-Xmx10g"})
+@Fork(value = 1, jvmArgs = {"-XX:+UseG1GC", "-Xms12g", "-Xmx12g"})
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Threads(StatBenchmark.THREAD_COUNT)
 @BenchmarkMode(Mode.AverageTime)
@@ -41,10 +41,9 @@ public class StatBenchmark {
 
     @Benchmark
     public void aggregate(ThreadState state, BenchmarkState benchmarkState) {
-        final StatAggregator aggregator = state.aggregator;
         for (final StatObject object : benchmarkState.objects) {
             for (final StatKey key : benchmarkState.keys) {
-                aggregator.accept(key, object);
+                state.aggregator.accept(key, object);
             }
         }
     }
